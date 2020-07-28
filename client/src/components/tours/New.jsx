@@ -5,19 +5,19 @@ import Axios from 'axios';
 import { Redirect } from 'react-router-dom';
 import { toast } from 'react-toastify';
 const New = function () {
-  const [inputs, setInputs, setTours] = useState({
+  const [inputs, setInputs] = useState({
     title: '',
-    tourType: 'I\'m too young to die',
+    tourType: '',
     groupSize:'',
     date:''
   });
-  const gettours = async () => {
+  const getTours = async () => {
     const toursResp = await Axios.get('/api/tours');
      if (toursResp.status === 200) setTours(toursResp.data);
   };
   useEffect(() => {
     (async () => {
-      await gettours();
+      await getTours();
     })();
   }, [gettours]);
   const tourTypes = async tour => {

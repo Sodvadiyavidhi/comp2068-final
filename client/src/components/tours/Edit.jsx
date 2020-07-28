@@ -5,10 +5,10 @@ import { Redirect } from 'react-router-dom';
 import { toast } from 'react-toastify';
 const Edit = function (props) {
   const id = props.location.state.id; 
-  const [inputs, setInputs, setTours] = useState({
+  const [inputs, setInputs] = useState({
     title: '',
     groupSize:'',
-    tourType: 'I\'m too young to die',
+    tourType: '',
     date:''
   });
   const tourTypes = async () => {
