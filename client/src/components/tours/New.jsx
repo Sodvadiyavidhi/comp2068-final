@@ -1,54 +1,38 @@
 // Fill in the missing code
-import React, { useState , useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Container } from 'react-bootstrap';
 import Axios from 'axios';
 import { Redirect } from 'react-router-dom';
 import { toast } from 'react-toastify';
-
-
 const New = function () {
   const [inputs, setInputs, setTours] = useState({
     title: '',
-    groupSize: '',
-    tourType: '',
-    date: ''
+    tourType: 'I\'m too young to die',
+    groupSize:'',
+    date:''
   });
-
-
-  const [redirect, setRedirect] = useState(false);
+  const gettours = async () => {
+    const toursResp = await Axios.get('/api/tours');
+     if (toursResp.status === 200) setTours(toursResp.data);
+  };
   useEffect(() => {
     (async () => {
-      const tourResp = await Axios.get(`/api/tours`);
-      if (tourResp.status === 200) setInputs(tourResp.data);
+      await gettours();
     })();
-  }, []);
-
-
+  }, [gettours]);
+  const tourTypes = async tour => {
+      const resp = await Axios.post('/api/tours/tourTypes', {
+        id: tour._id
+      });
+  }
+ 
+  const [redirect, setRedirect] = useState(false);
   const handleSubmit = async event => {
     event.preventDefault();
-
     try {
       const resp = await Axios.post('/api/tours', inputs);
-
       if (resp.status === 200)  {
-        toast("The tour is successfully added.", {
-          type: toast.TYPE.SUCCESS
-        });
-        setRedirect(true);
-      } else {
-        toast("There was an issue creating the tour", {
-          type: toast.TYPE.ERROR
-        });
-      }
-    } catch (error) {
-      toast("There was an issue creating the tour", {
-        type: toast.TYPE.ERROR
-      });
-    }
-    try {
-      const respon = await Axios.post('/api/tours/tourTypes', inputs);
-      if (respon.status === 200)  {
-        toast("The tour is successfully added.", {
+        toast("The tour was created successfully", {
           type: toast.TYPE.SUCCESS
         });
         setRedirect(true);
@@ -63,49 +47,21 @@ const New = function () {
       });
     }
   };
-  const onChange = async event => {
-    event.preventDefault();
-
-    try {
-      const resp = await Axios.post('/api/tours/tourTypes', inputs);
-
-      if (resp.status === 200)  {
-        toast("The tour is successfully added.", {
-          type: toast.TYPE.SUCCESS
-        });
-        setRedirect(true);
-      } else {
-        toast("There was an issue creating the tour", {
-          type: toast.TYPE.ERROR
-        });
-      }
-    } catch (error) {
-      toast("There was an issue creating the tour", {
-        type: toast.TYPE.ERROR
-      });
-    }
-  };
-
   const handleInputChange = async event => {
     event.persist();
-
     const { name, value } = event.target;
-
     setInputs(inputs => ({
       ...inputs,
       [name]: value
     }));
   };
-
   if (redirect) return (<Redirect to="/tours"/>);
   return (
     <Container className="my-5">
       <header>
         <h1>New Tour</h1>
       </header>
-
       <hr/>
-
       <div>
         <Form onSubmit={handleSubmit}>
           <Form.Group>
@@ -116,7 +72,6 @@ const New = function () {
               value={inputs.title}
             />
           </Form.Group>
-
           <Form.Group>
             <Form.Label>Tour Type:</Form.Label>
             <Form.Control
@@ -125,13 +80,11 @@ const New = function () {
               onChange={handleInputChange}
               defaultValue={inputs.tourType}
             >
-              
               {tourTypes.map((type, i) => (
                 <option key={i} value={type}>{type}</option>
               ))}
             </Form.Control>
           </Form.Group>
-
           <Form.Group>
             <Form.Label>Group Size:</Form.Label>
             <Form.Control
@@ -144,7 +97,6 @@ const New = function () {
               value={inputs.groupSize}
             />
           </Form.Group>
-
           <Form.Group>
             <Form.Label>Date:</Form.Label>
             <Form.Control
@@ -154,7 +106,6 @@ const New = function () {
               value={inputs.date}
             />
           </Form.Group>
-
           <Form.Group>
             <button type="submit" className="btn btn-primary">Create</button>
           </Form.Group>
@@ -163,5 +114,4 @@ const New = function () {
     </Container>
   );
 };
-
 export default New;

@@ -1,36 +1,32 @@
-// Fill in the missing code
 import React, { useState, useEffect } from 'react';
 import { Form, Container } from 'react-bootstrap';
 import Axios from 'axios';
 import { Redirect } from 'react-router-dom';
 import { toast } from 'react-toastify';
-
 const Edit = function (props) {
-
   const id = props.location.state.id; 
-
-  const [inputs, setInputs] = useState({
+  const [inputs, setInputs, setTours] = useState({
     title: '',
     groupSize:'',
-    date:'',
-    tourType:''
+    tourType: 'I\'m too young to die',
+    date:''
   });
-
+  const tourTypes = async () => {
+    const toursResp = await Axios.get('/api/tours/tourTypes');
+    if (toursResp.status === 200) setTours(toursResp.data);
+  };
   const [redirect, setRedirect] = useState(false);
-
   useEffect(() => {
     (async () => {
       const tourResp = await Axios.get(`/api/tours/${id}`);
       if (tourResp.status === 200) setInputs(tourResp.data);
+      await tourTypes();
     })();
-  }, []);
-
+  }, [tourTypes]);
   const handleSubmit = async event => {
     event.preventDefault();
-
     try {
       const resp = await Axios.post('/api/tours/update', inputs);
-
       if (resp.status === 200)  {
         toast("The tour was updated successfully", {
           type: toast.TYPE.SUCCESS
@@ -47,28 +43,21 @@ const Edit = function (props) {
       });
     }
   };
-
   const handleInputChange = async event => {
     event.persist();
-
     const { name, value } = event.target;
-
     setInputs(inputs => ({
       ...inputs,
       [name]: value
     }));
   };
-
   if (redirect) return (<Redirect to="/tours"/>);
-
   return (
     <Container className="my-5">
       <header>
         <h1>Edit Tour</h1>
       </header>
-
       <hr/>
-
       <div>
         <Form onSubmit={handleSubmit}>
           <Form.Group>
@@ -79,7 +68,6 @@ const Edit = function (props) {
               value={inputs.title}
             />
           </Form.Group>
-
           <Form.Group>
             <Form.Label>Tour Type:</Form.Label>
             <Form.Control
@@ -93,7 +81,6 @@ const Edit = function (props) {
               ))}
             </Form.Control>
           </Form.Group>
-
           <Form.Group>
             <Form.Label>Group Size:</Form.Label>
             <Form.Control
@@ -106,7 +93,6 @@ const Edit = function (props) {
               value={inputs.groupSize}
             />
           </Form.Group>
-
           <Form.Group>
             <Form.Label>Date:</Form.Label>
             <Form.Control
@@ -116,7 +102,6 @@ const Edit = function (props) {
               value={inputs.date}
             />
           </Form.Group>
-
           <Form.Group>
             <button type="submit" className="btn btn-primary">Update</button>
           </Form.Group>
@@ -125,5 +110,4 @@ const Edit = function (props) {
     </Container>
   );
 };
-
 export default Edit;
